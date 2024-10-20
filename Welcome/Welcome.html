@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册与登录</title>
+    <style>
+        body {
+            background-image: url('123.jpg');
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: white;
+            text-align: center;
+        }
+        .container {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            width: 300px;
+        }
+        .hidden {
+            display: none;
+        }
+        .form-container {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 id="formHeader">欢迎，请选择</h1>
+    
+    <button id="toggleFormButton">切换到注册</button>
+    
+    <div id="formContainer" class="form-container">
+        <div id="registerContainer">
+            <h2>注册</h2>
+            <form id="registerForm">
+                <input type="text" id="username" placeholder="用户名" required>
+                <input type="password" id="password" placeholder="密码" required>
+                <div id="passwordWarning" class="hidden">密码安全度低！请使用更复杂的密码。</div>
+                <button type="submit">注册</button>
+            </form>
+        </div>
+        
+        <div id="loginContainer" class="hidden">
+            <h2>登录</h2>
+            <form id="loginForm">
+                <input type="text" id="loginUsername" placeholder="用户名" required>
+                <input type="password" id="loginPassword" placeholder="密码" required>
+                <button type="submit">登录</button>
+            </form>
+        </div>
+    </div>
+
+    <h1 class="hidden" id="welcomeMessage">欢迎，<span id="displayUsername"></span>！</h1>
+    <button id="switchAccountButton" class="hidden">切换账号</button>
+</div>
+
+<script>
+    const savedUser = JSON.parse(localStorage.getItem('user'));
+
+    if (savedUser) {
+        showLogin();
+    }
+
+    document.getElementById('toggleFormButton').addEventListener('click', function() {
+        const isLoginVisible = document.getElementById('loginContainer').classList.contains('hidden');
+        document.getElementById('registerContainer').classList.toggle('hidden', !isLoginVisible);
+        document.getElementById('loginContainer').classList.toggle('hidden', isLoginVisible);
+        this.textContent = isLoginVisible ? '切换到注册' : '切换到登录';
+        document.getElementById('formContainer').style.display = 'block';
+    });
+
+    document.getElementById('registerForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        if (!/[a-zA-Z]/.test(username)) {
+            alert('用户名必须包含英文！');
+            return;
+        }
+
+        if (password.length < 6) {
+            document.getElementById('passwordWarning').classList.remove('hidden');
+            return;
+        } else {
+            document.getElementById('passwordWarning').classList.add('hidden');
+        }
+
+        localStorage.setItem('user', JSON.stringify({ username, password }));
+        alert('注册成功！请登录。');
+        document.getElementById('registerForm').reset();
+        showLogin();
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const loginUsername = document.getElementById('loginUsername').value;
+        const loginPassword = document.getElementById('loginPassword').value;
+
+        const savedUser = JSON.parse(localStorage.getItem('user'));
+        if (savedUser && savedUser.username === loginUsername && savedUser.password === loginPassword) {
+            document.getElementById('formContainer').classList.add('hidden');
+            document.getElementById('welcomeMessage').classList.remove('hidden');
+            document.getElementById('displayUsername').textContent = loginUsername;
+            document.getElementById('switchAccountButton').classList.remove('hidden');
+        } else {
+            alert('用户名或密码错误！');
+        }
+    });
+
+    document.getElementById('switchAccountButton').addEventListener('click', function() {
+        document.getElementById('welcomeMessage').classList.add('hidden');
+        document.getElementById('switchAccountButton').classList.add('hidden');
+        document.getElementById('formContainer').style.display = 'block';
+        document.getElementById('toggleFormButton').click(); // 切换到登录表单
+    });
+
+    function showLogin() {
+        document.getElementById('loginContainer').classList.remove('hidden');
+        document.getElementById('registerContainer').classList.add('hidden');
+        document.getElementById('toggleFormButton').textContent = '切换到注册';
+        document.getElementById('formContainer').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
